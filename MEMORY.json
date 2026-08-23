@@ -1,0 +1,38 @@
+{
+  "seal": "FLASH SECRET",
+  "title": "TELEGRAPH",
+  "subject": "TELEMETRIA = PERFILAMENTO CONTÍNUO",
+  "sealed_at": "2026-08-23T14:39:00-03:00",
+  "independent_of_grok_chat": true,
+  "device": {
+    "model": "iPhone18,4",
+    "os": "iPhone OS 26.6",
+    "build": "23G71",
+    "arch": "arm64e",
+    "locale": "BR",
+    "tz": -10800,
+    "mcc": 724,
+    "mnc": 10,
+    "carrier": "TIM Brasil",
+    "crashReporterKey": "6a15e9a55c4f3e4f5652053b2106c0ed2c1438ff"
+  },
+  "ids": {
+    "idfv_chatgpt": "9C0708A6-3A2C-4E01-AF1A-ABD12C32FAB2",
+    "idfv_gemini": "6C244C80-E9E8-46E9-BFB9-6CB84FD121BD",
+    "boot_chatgpt": "1FBCE8AA-D595-4084-AD5F-43159E43929F",
+    "boot_gemini": "A7E4A03F-E00F-4791-AD41-C087A9560613",
+    "rtc_a": "77F5865C-FF30-4754-8192-A510FBFD5E1B",
+    "rtc_b": "3EC725BA-4ABC-4D9B-80EF-DE0A4197D3AF",
+    "ckks_eventLinkID": "5557D8D0-D376-4DB2-8241-E67E74400092",
+    "net_eventLinkID": "3CCAB725-A092-40D7-B8A4-DDAF31CCA402",
+    "skad": "n38lu8286q.skadnetwork"
+  },
+  "watchdog": "0x8BADF00D",
+  "watchdog_note": "FRONTBOARD scene-update, not heap sanitization",
+  "mirrors": {
+    "telegraph": "https://telegra.ph/TELEGRAPH--Telemetria--Perfilamento-Contínuo-08-23",
+    "github": "https://github.com/romastefale/TELEGRAPH",
+    "tr4": "https://github.com/romastefale/tr4/blob/main/O%20cachorro%20%C3%A9%20telespectador.md"
+  },
+  "verdict_pt": "Não há múltiplos sistemas. Não há diagnósticos isolados. Há uma máquina de observação com várias interfaces. Sanitização é conformidade, não barreira — salvo DAP. STOP"
+}
