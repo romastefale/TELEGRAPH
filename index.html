@@ -1,57 +1,434 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>TELEGRAPH</title>
-<meta name="robots" content="index,follow"/>
-<style>
-  :root{--ink:#0c0d0b;--paper:#e8e2d4;--fg:#d9d2c3;--dim:#8a8476;--ox:#7a1f1f;--bd:#2a2924;}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--ink);color:var(--fg);font:16px/1.55 Georgia,serif}
-  header{position:sticky;top:0;background:rgba(12,13,11,.95);border-bottom:1px solid var(--bd);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-  h1{font:700 22px/1 Georgia;margin:0;letter-spacing:.04em}
-  .flash{background:var(--ox);color:#f3e6d8;font:600 10px/1 ui-monospace,monospace;letter-spacing:.22em;padding:6px 8px}
-  main{max-width:720px;margin:0 auto;padding:28px 20px 80px}
-  .paper{background:var(--paper);color:#1c1b16;padding:28px 24px;box-shadow:8px 12px 0 #000}
-  h2{font-size:13px;letter-spacing:.18em;margin:0 0 10px}
-  p,li{font-size:16px}
-  code,pre,.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
-  a{color:inherit}
-  .ids{display:grid;gap:8px;margin:18px 0}
-  .ids div{border:1px solid #c9c1b0;padding:8px 10px}
-  .ids b{display:block;font:600 10px/1.2 ui-monospace,monospace;letter-spacing:.14em;color:#5c5648}
-  footer{max-width:720px;margin:0 auto;padding:0 20px 40px;color:var(--dim);font:12px/1.5 ui-monospace,monospace}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MDTXTRT Executivo</title>
+    <!-- Importação da fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #000000);
+            --hint-color: var(--tg-theme-hint-color, #999999);
+            --link-color: var(--tg-theme-link-color, #3390ec);
+            --divider: rgba(128, 128, 128, 0.2);
+            --edit-btn-bg: rgba(128, 128, 128, 0.05);
+            --dropdown-bg: var(--tg-theme-bg-color, #f9f9f9);
+            --dropdown-shadow: rgba(0,0,0,0.15);
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: var(--tg-theme-bg-color, #181818);
+                --text-color: var(--tg-theme-text-color, #ffffff);
+                --hint-color: var(--tg-theme-hint-color, #aaaaaa);
+                --link-color: var(--tg-theme-link-color, #64b5f6);
+                --divider: rgba(255, 255, 255, 0.1);
+                --edit-btn-bg: rgba(255, 255, 255, 0.08);
+                --dropdown-bg: var(--tg-theme-bg-color, #242424);
+                --dropdown-shadow: rgba(0,0,0,0.5);
+            }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            padding: 20px 20px 100px 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        input, textarea {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-family: inherit;
+            width: 100%;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--hint-color);
+            opacity: 0.7;
+        }
+
+        #file-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        #telegraph-path {
+            font-size: 1.1em;
+            color: var(--hint-color);
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+
+        /* Estrutura Dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            background: var(--edit-btn-bg);
+            color: var(--text-color);
+            border: 1px solid var(--divider);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--dropdown-bg);
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px var(--dropdown-shadow);
+            z-index: 100;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--divider);
+        }
+
+        .dropdown-content button {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 400;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .dropdown-content button:hover, .dropdown-content button:active {
+            background-color: var(--edit-btn-bg);
+        }
+
+        .show {
+            display: block;
+        }
+
+        .edit-toolbar {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+            width: 100%;
+        }
+
+        .toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border-top: 1px solid var(--divider);
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toolbar .dropdown-content {
+            bottom: 100%;
+            top: auto;
+            margin-bottom: 5px;
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--link-color);
+            border: 1px solid var(--link-color);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        #editor {
+            font-size: 1.1em;
+            line-height: 1.6;
+            flex-grow: 1;
+            resize: none;
+            min-height: 50vh;
+        }
+
+        .status-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-color);
+            color: var(--bg-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .status-toast.visible {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-<header>
-  <h1>TELEGRAPH</h1>
-  <span class="flash">FLASH SECRET</span>
-</header>
-<main>
-  <article class="paper">
-    <p class="mono">DE OBSERVER // iPhone18,4 // 23G71<br/>PARA ARQUIVO · RECONSTITUIÇÃO<br/>ASSUNTO TELEMETRIA = PERFILAMENTO CONTÍNUO</p>
-    <h2>PREMISSA</h2>
-    <p>Logs não diagnosticam apps. Extraem pipeline único: coleta → sanitização → correlação → flush. Alvo não é o processo. Alvo é o usuário através do processo. Um dispositivo. Um CRK. Dez autos. Mesma gramática JSON. STOP</p>
-    <h2>WATCHDOG 0x8BADF00D</h2>
-    <p>2343432205₁₀ = 0x8BADF00D. FRONTBOARD mata processo que excede wall-clock allowance. No ChatGPT: 10,00 s scene-update, thermal serious. Não é sanitização de heap. É limite de cena. STOP</p>
-    <h2>CORRELAÇÃO</h2>
-    <div class="ids">
-      <div><b>crashReporterKey</b><code>6a15e9a55c4f3e4f5652053b2106c0ed2c1438ff</code></div>
-      <div><b>IDFV OpenAI</b><code>9C0708A6-3A2C-4E01-AF1A-ABD12C32FAB2</code></div>
-      <div><b>IDFV Google</b><code>6C244C80-E9E8-46E9-BFB9-6CB84FD121BD</code></div>
-      <div><b>boot ChatGPT</b><code>1FBCE8AA-D595-4084-AD5F-43159E43929F</code></div>
-      <div><b>boot Gemini</b><code>A7E4A03F-E00F-4791-AD41-C087A9560613</code></div>
+
+    <div id="status" class="status-toast"></div>
+
+    <div class="container">
+        <input type="text" id="file-title" placeholder="Título do Documento">
+        <input type="text" id="telegraph-path" placeholder="Caminho do URL (Ex: meu-artigo-secreto)">
+        
+        <div class="edit-toolbar">
+            <div class="dropdown">
+                <button class="dropbtn" onclick="toggleMenu('menu-estilos', event)">Estilos ▾</button>
+                <div id="menu-estilos" class="dropdown-content">
+                    <button type="button" onclick="applyFormat('**', '**')"><b>Negrito</b></button>
+                    <button type="button" onclick="applyFormat('_', '_')"><i>Itálico</i></button>
+                    <button type="button" onclick="applyFormat('__', '__')"><u>Sublinhado</u></button>
+                    <button type="button" onclick="applyFormat('~~', '~~')"><s>Rasurado</s></button>
+                    <button type="button" onclick="applyFormat('||', '||')">Spoiler</button>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropbtn" onclick="toggleMenu('menu-titulos', event)">Títulos ▾</button>
+                <div id="menu-titulos" class="dropdown-content">
+                    <button type="button" onclick="applyFormat('# ', '')">H1 - Título Principal</button>
+                    <button type="button" onclick="applyFormat('## ', '')">H2 - Título</button>
+                    <button type="button" onclick="applyFormat('### ', '')">H3 - Subtítulo</button>
+                    <button type="button" onclick="applyFormat('#### ', '')">H4 - Secção</button>
+                    <button type="button" onclick="applyFormat('##### ', '')">H5 - Subsecção</button>
+                    <button type="button" onclick="applyFormat('###### ', '')">H6 - Menor</button>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropbtn" onclick="toggleMenu('menu-blocos', event)">Elementos ▾</button>
+                <div id="menu-blocos" class="dropdown-content">
+                    <button type="button" onclick="applyFormat('- ', '')">• Lista de Marcadores</button>
+                    <button type="button" onclick="applyFormat('1. ', '')">1. Lista Numerada</button>
+                    <button type="button" onclick="applyFormat('- [ ] ', '')">☑ Lista de Tarefas</button>
+                    <button type="button" onclick="applyFormat('> ', '')">” Citação</button>
+                    <button type="button" onclick="applyFormat('`', '`')">&lt;/&gt; Código (Linha)</button>
+                    <button type="button" onclick="applyFormat('```\n', '\n```')">Bloco de Código</button>
+                    <button type="button" onclick="applyFormat('[', '](url)')">🔗 Inserir Link</button>
+                    <button type="button" onclick="applyFormat('![', '](url)')">🖼️ Inserir Imagem</button>
+                    <button type="button" onclick="applyFormat('\n---\n', '')">—— Linha Horizontal</button>
+                </div>
+            </div>
+        </div>
+
+        <textarea id="editor" placeholder="Escreva o seu texto ou sintaxe Markdown aqui..."></textarea>
     </div>
-    <h2>VEREDITO</h2>
-    <p>Não há múltiplos sistemas. Não há diagnósticos isolados. Há uma máquina de observação com várias interfaces, todas no mesmo envelope. Sanitização é conformidade, não barreira — salvo DAP. STOP</p>
-    <p class="mono">SELO 2026-08-23 11:39 −03 · este HTML vive no GitHub. Apagar o chat Grok não apaga isto.</p>
-  </article>
-</main>
-<footer>
-  Espelho telegra.ph: https://telegra.ph/TELEGRAPH--Telemetria--Perfilamento-Contínuo-08-23<br/>
-  Repositório: https://github.com/romastefale/TELEGRAPH
-</footer>
+
+    <div class="toolbar">
+        <button class="btn-primary" onclick="publishTelegraph()">Publicar Telegraph</button>
+        
+        <div class="dropdown">
+            <button class="dropbtn" onclick="toggleMenu('menu-guardar', event)">Exportar ▾</button>
+            <div id="menu-guardar" class="dropdown-content">
+                <button onclick="saveFile('txt')">Salvar .TXT</button>
+                <button onclick="saveFile('md')">Salvar .MD</button>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn" onclick="toggleMenu('menu-acoes', event)">Opções ▾</button>
+            <div id="menu-acoes" class="dropdown-content">
+                <button onclick="copyToClipboard()">Copiar Conteúdo</button>
+                <button onclick="shareNative()">Compartilhamento do Sistema</button>
+                <button onclick="recoverDraft()" style="color: #e53935;">Recuperar Rascunho (-5 min)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        const editor = document.getElementById('editor');
+        const titleInput = document.getElementById('file-title');
+        const pathInput = document.getElementById('telegraph-path');
+        const status = document.getElementById('status');
+
+        function toggleMenu(id, event) {
+            event.stopPropagation();
+            const menus = document.getElementsByClassName("dropdown-content");
+            for (let i = 0; i < menus.length; i++) {
+                if (menus[i].id !== id) {
+                    menus[i].classList.remove('show');
+                }
+            }
+            document.getElementById(id).classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                const menus = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < menus.length; i++) {
+                    if (menus[i].classList.contains('show')) {
+                        menus[i].classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        function applyFormat(prefix, suffix = '') {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const text = editor.value;
+            
+            const before = text.substring(0, start);
+            const selected = text.substring(start, end);
+            const after = text.substring(end);
+
+            editor.value = before + prefix + selected + suffix + after;
+            editor.focus();
+            
+            const newCursorPos = start + prefix.length + selected.length;
+            editor.setSelectionRange(
+                selected.length > 0 ? newCursorPos + suffix.length : newCursorPos,
+                selected.length > 0 ? newCursorPos + suffix.length : newCursorPos
+            );
+            
+            resizeEditor();
+        }
+
+        function resizeEditor() {
+            editor.style.height = 'auto';
+            editor.style.height = (editor.scrollHeight) + 'px';
+        }
+        editor.addEventListener('input', resizeEditor);
+
+        function saveDraft() {
+            localStorage.setItem('mdtxtrt_draft', editor.value);
+            localStorage.setItem('mdtxtrt_title', titleInput.value);
+            localStorage.setItem('mdtxtrt_path', pathInput.value);
+            showStatus("Rascunho salvo (5m)");
+        }
+        setInterval(saveDraft, 300000);
+
+        function recoverDraft() {
+            editor.value = localStorage.getItem('mdtxtrt_draft') || '';
+            titleInput.value = localStorage.getItem('mdtxtrt_title') || '';
+            pathInput.value = localStorage.getItem('mdtxtrt_path') || '';
+            resizeEditor();
+            showStatus("Rascunho carregado");
+        }
+
+        function showStatus(text) {
+            status.textContent = text;
+            status.classList.add('visible');
+            setTimeout(() => status.classList.remove('visible'), 2500);
+        }
+
+        function copyToClipboard() {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(editor.value).then(() => showStatus("Copiado"));
+            } else {
+                const ta = document.createElement("textarea");
+                ta.value = editor.value;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showStatus("Copiado");
+            }
+        }
+
+        function saveFile(ext) {
+            const name = titleInput.value.trim() || 'documento';
+            const blob = new Blob([editor.value], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name}.${ext}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showStatus(`Exportado .${ext}`);
+        }
+
+        function shareNative() {
+            if (navigator.share) {
+                navigator.share({
+                    title: titleInput.value || 'Documento',
+                    text: editor.value
+                }).catch(() => {});
+            } else {
+                showStatus("Compartilhamento indisponível");
+            }
+        }
+
+        function publishTelegraph() {
+            if (!editor.value.trim()) {
+                showStatus("Documento vazio");
+                return;
+            }
+            
+            const payload = {
+                action: 'publish_telegraph',
+                title: titleInput.value || 'Sem Título',
+                path: pathInput.value,
+                content: editor.value
+            };
+
+            tg.sendData(JSON.stringify(payload));
+            tg.close();
+        }
+    </script>
 </body>
 </html>
+```eof
+
+Alterações efetuadas:
+- Adicionada a tag de importação `<link>` no topo do ficheiro.
+- Removidas as famílias de fontes individuais (Georgia, San Francisco, Segoe UI).
+- Aplicado `font-family: 'Inter', sans-serif;` diretamente no `body`. Todos os inputs, textareas e botões usam agora `inherit` para garantir uniformidade em toda a interface.
