@@ -13,13 +13,13 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 telegraph = Telegraph()
 telegraph.create_account(short_name='MiniApp_Exec')
 
-# Leitura de Variáveis de Ambiente
+# LEITURA ESTRITA DE VARIÁVEIS DE AMBIENTE (Sem textos fixos)
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 WEB_APP_URL = os.environ.get("WEB_APP_URL")
-PORT = int(os.environ.get("PORT", 8080)) # A Railway atribui a porta dinamicamente
+PORT = int(os.environ.get("PORT", 8080))
 
 if not TOKEN:
-    raise ValueError("A variável TELEGRAM_TOKEN não foi encontrada no ambiente.")
+    raise ValueError("ERRO FATAL: A variável TELEGRAM_TOKEN não foi encontrada no ambiente da Railway.")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
@@ -95,9 +95,8 @@ async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE)
     except Exception as e:
         await update.message.reply_text(f"Erro no processamento: {e}")
 
-# --- SERVIDOR WEB ---
+# --- SERVIDOR WEB INTEGRADO ---
 async def serve_index(request):
-    """Lê e serve o ficheiro index.html na raiz do servidor."""
     try:
         with open("index.html", "r", encoding="utf-8") as f:
             content = f.read()
@@ -106,7 +105,6 @@ async def serve_index(request):
         return web.Response(text="Erro: ficheiro index.html não encontrado no servidor.", status=404)
 
 async def main():
-    # 1. Configurar e iniciar a aplicação Telegram
     application = Application.builder().token(TOKEN).build()
     
     application.add_handler(CommandHandler("start", start))
@@ -119,7 +117,6 @@ async def main():
     await application.start()
     await application.updater.start_polling()
 
-    # 2. Configurar e iniciar o Servidor Web aiohttp
     web_app = web.Application()
     web_app.router.add_get('/', serve_index)
     
@@ -130,8 +127,18 @@ async def main():
     
     logging.info(f"Servidor Web iniciado na porta {PORT}. Bot em execução.")
 
-    # 3. Manter o evento em loop para que os serviços corram continuamente
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
     asyncio.run(main())
+```eof
+
+E o `requirements.txt` necessário para o ambiente construir sem falhas:
+
+```text:requirements.txt
+python-telegram-bot
+telegraph
+aiohttp
+```eof
+
+Com a inserção destes ficheiros no seu repositório, o processo automatizado será corrigido imediatamente.
