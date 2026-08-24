@@ -1,6 +1,9 @@
+import os
 import io
 import json
 import logging
+import asyncio
+from aiohttp import web
 from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegraph import Telegraph
@@ -10,8 +13,13 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 telegraph = Telegraph()
 telegraph.create_account(short_name='MiniApp_Exec')
 
-TOKEN = "SEU_TELEGRAM_BOT_TOKEN_AQUI"
-WEB_APP_URL = "URL_HTTPS_DO_SEU_INDEX_HTML_AQUI"
+# Leitura de Variáveis de Ambiente
+TOKEN = os.environ.get("TELEGRAM_TOKEN")
+WEB_APP_URL = os.environ.get("WEB_APP_URL")
+PORT = int(os.environ.get("PORT", 8080)) # A Railway atribui a porta dinamicamente
+
+if not TOKEN:
+    raise ValueError("A variável TELEGRAM_TOKEN não foi encontrada no ambiente.")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
@@ -20,15 +28,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     markup = InlineKeyboardMarkup([[
         InlineKeyboardButton("Abrir App Executivo", web_app=WebAppInfo(url=WEB_APP_URL))
-    ]])
+    ]]) if WEB_APP_URL else None
+    
     await update.message.reply_text(text, reply_markup=markup)
 
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
         "/start - Inicializa a interface principal e o botão da Mini App\n"
         "/help - Exibe esta lista de comandos\n"
-        "/tgrich <texto> - Converte sintaxe Markdown para Rich Text nativo do Telegram (MarkdownV2)\n"
-        "/mdrich - Responda a uma mensagem com este comando para extrair a formatação nativa e receber como ficheiro .md"
+        "/tgrich <texto> - Converte sintaxe Markdown para Rich Text nativo do Telegram\n"
+        "/mdrich - Responda a uma mensagem para extrair a formatação nativa e receber ficheiro .md"
     )
     await update.message.reply_text(text)
 
@@ -86,16 +95,43 @@ async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE)
     except Exception as e:
         await update.message.reply_text(f"Erro no processamento: {e}")
 
-def main():
-    app = Application.builder().token(TOKEN).build()
+# --- SERVIDOR WEB ---
+async def serve_index(request):
+    """Lê e serve o ficheiro index.html na raiz do servidor."""
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            content = f.read()
+        return web.Response(text=content, content_type="text/html")
+    except FileNotFoundError:
+        return web.Response(text="Erro: ficheiro index.html não encontrado no servidor.", status=404)
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_cmd))
-    app.add_handler(CommandHandler("tgrich", tgrich))
-    app.add_handler(CommandHandler("mdrich", mdrich))
-    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_webapp_data))
+async def main():
+    # 1. Configurar e iniciar a aplicação Telegram
+    application = Application.builder().token(TOKEN).build()
+    
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_cmd))
+    application.add_handler(CommandHandler("tgrich", tgrich))
+    application.add_handler(CommandHandler("mdrich", mdrich))
+    application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_webapp_data))
 
-    app.run_polling()
+    await application.initialize()
+    await application.start()
+    await application.updater.start_polling()
+
+    # 2. Configurar e iniciar o Servidor Web aiohttp
+    web_app = web.Application()
+    web_app.router.add_get('/', serve_index)
+    
+    runner = web.AppRunner(web_app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', PORT)
+    await site.start()
+    
+    logging.info(f"Servidor Web iniciado na porta {PORT}. Bot em execução.")
+
+    # 3. Manter o evento em loop para que os serviços corram continuamente
+    await asyncio.Event().wait()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
